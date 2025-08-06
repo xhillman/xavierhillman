@@ -1,0 +1,22 @@
+[
+  {
+    "output": "index.html",
+    "title": "Home",
+    "description": "Welcome to my personal site."
+  },
+  {
+    "output": "about.html",
+    "title": "About",
+    "description": "Learn more about me and this site."
+  },
+  {
+    "output": "blog.html",
+    "title": "Blog",
+    "description": "Read my latest blog posts."
+  },
+  {
+    "output": "projects.html",
+    "title": "Projects",
+    "description": "Check out my featured projects."
+  }
+]
