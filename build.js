@@ -10,25 +10,115 @@ const outputDir = "./dist";
 
 function buildStaticPages() {
   const pagesConfigPath = "./config/pages.json";
-  const pages = JSON.parse(fs.readFileSync(pagesConfigPath, "utf-8"));
+  const pagesMeta = JSON.parse(fs.readFileSync(pagesConfigPath, "utf-8"));
+
+  // Build a quick lookup by the config's output filename to get title/description
+  const metaByOutput = Object.fromEntries(
+    pagesMeta.map((p) => [p.output, { title: p.title, description: p.description }])
+  );
 
   console.log("Building static pages...");
 
-  pages.forEach((page) => {
-    const srcHtml = fs.readFileSync(page.src, "utf-8");
+  // Ensure base dist directory exists
+  fs.mkdirSync(outputDir, { recursive: true });
 
-    const finalHtml = applyTemplate(layout, {
-      title: page.title,
-      description: page.description,
-      content: srcHtml,
-    });
-
-    const outputDir = path.dirname(page.out);
-    fs.mkdirSync(outputDir, { recursive: true });
-    fs.writeFileSync(page.out, finalHtml);
-
-    console.log(`→ ${page.out}`);
+  // 1) Home page -> /
+  const homeMeta = metaByOutput["index.html"] || {};
+  const homeSrc = fs.readFileSync("./index.html", "utf-8");
+  const homeHtml = applyTemplate(layout, {
+    title: homeMeta.title || "Home",
+    description: homeMeta.description || "",
+    content: homeSrc,
   });
+  fs.writeFileSync(path.join(outputDir, "index.html"), homeHtml);
+  console.log("→ /");
+
+  // 2) About page -> /about
+  const aboutMeta = metaByOutput["about.html"] || {};
+  const aboutSrc = fs.readFileSync("./about.html", "utf-8");
+  const aboutHtml = applyTemplate(layout, {
+    title: aboutMeta.title || "About",
+    description: aboutMeta.description || "",
+    content: aboutSrc,
+  });
+  const aboutOutDir = path.join(outputDir, "about");
+  fs.mkdirSync(aboutOutDir, { recursive: true });
+  fs.writeFileSync(path.join(aboutOutDir, "index.html"), aboutHtml);
+  console.log("→ /about");
+
+  // 3) Blog index page -> /blog
+  const blogMeta = metaByOutput["blog.html"] || {};
+  const blogTemplate = fs.readFileSync("./templates/blog.html", "utf-8");
+  const postsDir = "./content/posts";
+  const postFiles = fs.existsSync(postsDir)
+    ? fs.readdirSync(postsDir).filter((f) => f.endsWith(".md"))
+    : [];
+  const posts = postFiles
+    .map((file) => {
+      const filePath = path.join(postsDir, file);
+      const { data } = matter(fs.readFileSync(filePath, "utf-8"));
+      return {
+        title: data.title || data.slug || file.replace(/\.md$/, ""),
+        slug: data.slug,
+        date: data.date ? new Date(data.date) : null,
+      };
+    })
+    .filter((p) => p.slug);
+  posts.sort((a, b) => {
+    if (a.date && b.date) return b.date - a.date;
+    if (a.date && !b.date) return -1;
+    if (!a.date && b.date) return 1;
+    return a.title.localeCompare(b.title);
+  });
+  const postsListHtml = posts
+    .map(
+      (p) =>
+        `<li><a href="/${p.slug}/">${p.title}</a>${
+          p.date ? ` <small>${p.date.toISOString().slice(0, 10)}</small>` : ""
+        }</li>`
+    )
+    .join("\n");
+  const blogContent = applyTemplate(blogTemplate, { posts: postsListHtml });
+  const blogHtml = applyTemplate(layout, {
+    title: blogMeta.title || "Blog",
+    description: blogMeta.description || "",
+    content: blogContent,
+  });
+  const blogOutDir = path.join(outputDir, "blog");
+  fs.mkdirSync(blogOutDir, { recursive: true });
+  fs.writeFileSync(path.join(blogOutDir, "index.html"), blogHtml);
+  console.log("→ /blog");
+
+  // 4) Projects index page -> /projects
+  const projectsMeta = metaByOutput["projects.html"] || {};
+  const projectsTemplate = fs.readFileSync("./templates/projects.html", "utf-8");
+  const projectsDir = "./content/projects";
+  const projectFiles = fs.existsSync(projectsDir)
+    ? fs.readdirSync(projectsDir).filter((f) => f.endsWith(".md"))
+    : [];
+  const projects = projectFiles
+    .map((file) => {
+      const filePath = path.join(projectsDir, file);
+      const { data } = matter(fs.readFileSync(filePath, "utf-8"));
+      return {
+        title: data.title || data.slug || file.replace(/\.md$/, ""),
+        slug: data.slug,
+      };
+    })
+    .filter((p) => p.slug);
+  const projectsListHtml = projects
+    .map((p) => `<li><a href="/projects/${p.slug}/">${p.title}</a></li>`)
+    .join("\n");
+  const projectsContent = applyTemplate(projectsTemplate, { projects: projectsListHtml });
+  const projectsHtml = applyTemplate(layout, {
+    title: projectsMeta.title || "Projects",
+    description: projectsMeta.description || "",
+    content: projectsContent,
+  });
+  const projectsOutDir = path.join(outputDir, "projects");
+  fs.mkdirSync(projectsOutDir, { recursive: true });
+  fs.writeFileSync(path.join(projectsOutDir, "index.html"), projectsHtml);
+  console.log("→ /projects");
 }
 
 function buildBlogPosts() {
@@ -104,5 +194,6 @@ function buildProjects() {
   });
 }
 
+buildStaticPages();
 buildBlogPosts();
 buildProjects();
