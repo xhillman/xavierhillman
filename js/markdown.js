@@ -15,7 +15,9 @@ export function parseMarkdownFile(filePath) {
   const { data, content } = matter(fileContent);
   const html = renderMarkdown(content);
 
-  const normalizedSlug = normalizeSlug(data.slug);
+  const fileName = filePath.split(/[/\\]/).pop() || "";
+  const baseName = fileName.replace(/\.md$/i, "");
+  const normalizedSlug = normalizeSlug(data.slug || baseName);
   const parsedDate = data.date ? new Date(data.date) : null;
 
   return {
@@ -39,6 +41,16 @@ export function loadCollection(directoryPath) {
     .map((file) => parseMarkdownFile(`${directoryPath}/${file}`))
     .map(({ data, html }) => ({ ...data, html }))
     .filter((item) => !!item.slug);
+
+  // Warn on duplicate slugs
+  const seen = new Set();
+  for (const item of items) {
+    if (seen.has(item.slug)) {
+      console.warn(`Duplicate slug detected: ${item.slug}. Later items may overwrite earlier ones.`);
+    } else {
+      seen.add(item.slug);
+    }
+  }
 
   // Sort: by date desc when present, otherwise by title asc
   items.sort((a, b) => {

@@ -12,6 +12,42 @@ const isDev = ENV.toUpperCase() !== "PROD";
 const basePath = isDev ? "/dist" : "";
 const assetPrefix = isDev ? "/dist" : "";
 
+function cleanDist() {
+  try {
+    fs.rmSync(outputDir, { recursive: true, force: true });
+  } catch (_) {
+    // ignore
+  }
+}
+
+function copyPublicAssets() {
+  const publicDir = "./public";
+  if (!fs.existsSync(publicDir)) return;
+  try {
+    // Node >=16.7 has cpSync
+    if (typeof fs.cpSync === "function") {
+      fs.cpSync(publicDir, outputDir, { recursive: true });
+    } else {
+      copyDirRecursive(publicDir, outputDir);
+    }
+  } catch (err) {
+    console.warn("Asset copy failed:", err.message);
+  }
+}
+
+function copyDirRecursive(srcDir, destDir) {
+  fs.mkdirSync(destDir, { recursive: true });
+  for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
+    const srcPath = path.join(srcDir, entry.name);
+    const destPath = path.join(destDir, entry.name);
+    if (entry.isDirectory()) {
+      copyDirRecursive(srcPath, destPath);
+    } else if (entry.isFile()) {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
 function buildStaticPages() {
   const pagesConfigPath = "./config/pages.json";
   const pagesMeta = JSON.parse(fs.readFileSync(pagesConfigPath, "utf-8"));
@@ -61,7 +97,7 @@ function buildStaticPages() {
   const postsListHtml = posts
     .map(
       (p) =>
-        `<li><a href="${basePath}/${p.slug}/">${p.title}</a>${
+        `<li><a href="${basePath}/blog/${p.slug}/">${p.title}</a>${
           p.date ? ` <small>${p.date.toISOString().slice(0, 10)}</small>` : ""
         }</li>`
     )
@@ -126,11 +162,11 @@ function buildBlogPosts() {
       content: html,
     });
 
-    // add post to dist folder
-    const postDir = path.join(outputDir, normalizedSlug);
+    // add post to dist/blog folder
+    const postDir = path.join(outputDir, "blog", normalizedSlug);
     fs.mkdirSync(postDir, { recursive: true });
     fs.writeFileSync(path.join(postDir, "index.html"), finalHtml);
-    console.log(`→ /${normalizedSlug}`);
+    console.log(`→ /blog/${normalizedSlug}`);
   });
 }
 
@@ -177,6 +213,62 @@ function buildProjects() {
   });
 }
 
+function buildSitemapAndRobots() {
+  const distRoot = path.resolve(outputDir);
+  const urls = [];
+
+  function pushUrl(relativePath) {
+    const normalized = relativePath.replace(/\\/g, "/");
+    urls.push(normalized);
+  }
+
+  // Walk dist for index.html files to create URL list
+  function walk(dir, base = "") {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name);
+      const rel = path.relative(distRoot, full);
+      if (entry.isDirectory()) {
+        walk(full, path.join(base, entry.name));
+      } else if (entry.isFile() && entry.name === "index.html") {
+        const dirPath = path.dirname(rel);
+        const normalizedDir = dirPath === "." ? "" : dirPath;
+        // root index is "" -> "/"
+        const urlPath = normalizedDir === "" ? "/" : `/${normalizedDir}/`;
+        pushUrl(urlPath);
+      }
+    }
+  }
+
+  walk(distRoot);
+
+  // Deduplicate and sort
+  const uniqueUrls = Array.from(new Set(urls)).sort();
+
+  // Base URL from env (optional), default to empty domain-less URLs
+  const baseUrl = process.env.SITE_URL || ""; // e.g., https://example.com
+
+  const sitemapXml = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ...uniqueUrls.map((u) => `  <url><loc>${baseUrl}${u}</loc></url>`),
+    '</urlset>'
+  ].join("\n");
+
+  fs.writeFileSync(path.join(outputDir, "sitemap.xml"), sitemapXml);
+
+  const robotsTxt = [
+    'User-agent: *',
+    'Allow: /',
+    baseUrl ? `Sitemap: ${baseUrl}/sitemap.xml` : ''
+  ].filter(Boolean).join("\n");
+
+  fs.writeFileSync(path.join(outputDir, "robots.txt"), robotsTxt);
+}
+
+cleanDist();
 buildStaticPages();
 buildBlogPosts();
 buildProjects();
+copyPublicAssets();
+buildSitemapAndRobots();
