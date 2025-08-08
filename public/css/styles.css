@@ -1,3 +1,148 @@
-/* moved from css/styles.css; keep styles here for build output */
+/* Base reset and variables */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+:root {
+  --max-content-width: 72rem; /* ~1152px */
+  --content-padding-inline: clamp(1rem, 3vw, 2rem);
+  --font-system: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --text: #0f172a; /* slate-900 */
+  --text-muted: #475569; /* slate-600 */
+  --bg: #ffffff;
+  --bg-elev: #f8fafc; /* slate-50 */
+  --border: #e2e8f0; /* slate-200 */
+  --accent: #0ea5e9; /* sky-500 */
+  --accent-contrast: #ffffff;
+  --link: #0369a1; /* sky-700 */
+}
 
+/* Layout primitives */
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-system);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: grid;
+  grid-template-rows: auto 1fr auto; /* header, content, footer */
+  min-height: 100vh;
+}
 
+/* Header / Nav */
+header {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+nav {
+  max-width: var(--max-content-width);
+  margin-inline: auto;
+  padding: 0.75rem var(--content-padding-inline);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+nav .logo a {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 3vw, 1.25rem);
+}
+nav a {
+  color: var(--link);
+  text-decoration: none;
+}
+nav a:hover, nav a:focus-visible {
+  text-decoration: underline;
+}
+
+/* Mobile nav wrapping gracefully without hamburger for now */
+@media (max-width: 40rem) {
+  nav { flex-wrap: wrap; }
+  nav .logo { flex: 1 1 100%; }
+  nav ul { flex-wrap: wrap; }
+}
+
+/* Main content */
+main {
+  max-width: var(--max-content-width);
+  margin-inline: auto;
+  padding: clamp(1rem, 3vw, 2rem) var(--content-padding-inline);
+}
+
+/* Typography */
+h1, h2, h3 { line-height: 1.2; margin: 0.5em 0 0.25em; }
+p { margin: 0.75em 0; }
+small { color: var(--text-muted); }
+code, pre { font-family: var(--font-mono); }
+pre {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+/* Lists in blog/project indexes */
+ul { padding-left: 1.25rem; }
+main > ul { padding-left: 0; list-style: none; }
+main > ul li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+main > ul li a { font-weight: 600; }
+
+/* Article layout */
+article { max-width: 70ch; }
+article h1 { font-size: clamp(1.75rem, 3vw, 2.25rem); }
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+footer p {
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: 1rem var(--content-padding-inline);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Accessibility tweaks */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* Overflow safety and media responsiveness */
+img, svg, video, canvas, audio, iframe, embed, object {
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  display: block;           /* enable horizontal scroll when needed */
+  overflow-x: auto;
+}
+
+main { overflow-wrap: anywhere; }
+
+/* Ensure in-page anchor links account for sticky header */
+h1, h2, h3, h4, h5, h6 { scroll-margin-top: 4.5rem; }
