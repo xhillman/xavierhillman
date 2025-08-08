@@ -4,17 +4,17 @@
   <meta charset="UTF-8" />
   <title>{{pageTitle}}</title>
   <meta name="description" content="{{metaDescription}}" />
-  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="{{assetPrefix}}/css/styles.css" />
 </head>
 <body>
   <header>
     <nav>
-        <div class="logo"><a href="/">xavier hillman</a></div>
+        <div class="logo"><a href="{{basePath}}/">xavier hillman</a></div>
         <ul>
-            <li>home</li>
-            <li>blog</li>
-            <li>projects</li>
-            <li>about</li>
+            <li><a href="{{basePath}}/">home</a></li>
+            <li><a href="{{basePath}}/blog/">blog</a></li>
+            <li><a href="{{basePath}}/projects/">projects</a></li>
+            <li><a href="{{basePath}}/about/">about</a></li>
         </ul>
     </nav>
   </header>

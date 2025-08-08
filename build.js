@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import fs from "fs";
 import path from "path";
 import { applyTemplate } from "./js/template.js";
@@ -6,6 +7,10 @@ import { loadCollection, parseMarkdownFile } from "./js/markdown.js";
 const templatePath = "./templates/layout.html";
 const layout = fs.readFileSync(templatePath, "utf-8");
 const outputDir = "./dist";
+const ENV = process.env.ENV || "DEV"; // DEV | PROD
+const isDev = ENV.toUpperCase() !== "PROD";
+const basePath = isDev ? "/dist" : "";
+const assetPrefix = isDev ? "/dist" : "";
 
 function buildStaticPages() {
   const pagesConfigPath = "./config/pages.json";
@@ -27,6 +32,8 @@ function buildStaticPages() {
   const homeHtml = applyTemplate(layout, {
     pageTitle: homeMeta.title || "Home",
     metaDescription: homeMeta.description || "",
+    basePath,
+    assetPrefix,
     content: homeSrc,
   });
   fs.writeFileSync(path.join(outputDir, "index.html"), homeHtml);
@@ -38,6 +45,8 @@ function buildStaticPages() {
   const aboutHtml = applyTemplate(layout, {
     pageTitle: aboutMeta.title || "About",
     metaDescription: aboutMeta.description || "",
+    basePath,
+    assetPrefix,
     content: aboutSrc,
   });
   const aboutOutDir = path.join(outputDir, "about");
@@ -52,7 +61,7 @@ function buildStaticPages() {
   const postsListHtml = posts
     .map(
       (p) =>
-        `<li><a href="/${p.slug}/">${p.title}</a>${
+        `<li><a href="${basePath}/${p.slug}/">${p.title}</a>${
           p.date ? ` <small>${p.date.toISOString().slice(0, 10)}</small>` : ""
         }</li>`
     )
@@ -61,6 +70,8 @@ function buildStaticPages() {
   const blogHtml = applyTemplate(layout, {
     pageTitle: blogMeta.title || "Blog",
     metaDescription: blogMeta.description || "",
+    basePath,
+    assetPrefix,
     content: blogContent,
   });
   const blogOutDir = path.join(outputDir, "blog");
@@ -73,12 +84,14 @@ function buildStaticPages() {
   const projectsTemplate = fs.readFileSync("./templates/projects.html", "utf-8");
   const projects = loadCollection("./content/projects");
   const projectsListHtml = projects
-    .map((p) => `<li><a href="/projects/${p.slug}/">${p.title}</a></li>`)
+    .map((p) => `<li><a href="${basePath}/projects/${p.slug}/">${p.title}</a></li>`)
     .join("\n");
   const projectsContent = applyTemplate(projectsTemplate, { projects: projectsListHtml });
   const projectsHtml = applyTemplate(layout, {
     pageTitle: projectsMeta.title || "Projects",
     metaDescription: projectsMeta.description || "",
+    basePath,
+    assetPrefix,
     content: projectsContent,
   });
   const projectsOutDir = path.join(outputDir, "projects");
@@ -108,6 +121,8 @@ function buildBlogPosts() {
 
     const finalHtml = applyTemplate(layout, {
       ...data,
+      basePath,
+      assetPrefix,
       content: html,
     });
 
@@ -148,6 +163,8 @@ function buildProjects() {
     // apply template
     const finalHtml = applyTemplate(layout, {
       ...data,
+      basePath,
+      assetPrefix,
       content: html,
     });
 
