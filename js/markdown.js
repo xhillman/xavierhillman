@@ -10,6 +10,25 @@ export function renderMarkdown(markdownString) {
   return marked(markdownString || "");
 }
 
+function parseDateStrict(input) {
+  if (!input) return null;
+  if (input instanceof Date && !isNaN(input.getTime())) {
+    // Gray-matter may parse ISO as UTC midnight; use UTC getters to keep the intended calendar date
+    return new Date(input.getUTCFullYear(), input.getUTCMonth(), input.getUTCDate());
+  }
+  const str = String(input).trim();
+  // Strict YYYY-MM-DD to avoid timezone shifts
+  const iso = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) {
+    const year = Number(iso[1]);
+    const month = Number(iso[2]);
+    const day = Number(iso[3]);
+    return new Date(year, month - 1, day); // local date
+  }
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 export function parseMarkdownFile(filePath) {
   const fileContent = fs.readFileSync(filePath, "utf-8");
   const { data, content } = matter(fileContent);
@@ -18,13 +37,16 @@ export function parseMarkdownFile(filePath) {
   const fileName = filePath.split(/[/\\]/).pop() || "";
   const baseName = fileName.replace(/\.md$/i, "");
   const normalizedSlug = normalizeSlug(data.slug || baseName);
-  const parsedDate = data.date ? new Date(data.date) : null;
+  const parsedDate = data.date ? parseDateStrict(data.date) : null;
+  const dateFormatter = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const dateFormatted = parsedDate ? dateFormatter.format(parsedDate) : "";
 
   return {
     data: {
       ...data,
       slug: normalizedSlug,
       date: parsedDate,
+      dateFormatted,
       pageTitle: data.metaTitle || data.title || "",
       metaDescription: data.metaDescription || data.description || "",
     },

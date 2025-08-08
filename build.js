@@ -98,7 +98,7 @@ function buildStaticPages() {
     .map(
       (p) =>
         `<li><a href="${basePath}/blog/${p.slug}/">${p.title}</a>${
-          p.date ? ` <small>${p.date.toISOString().slice(0, 10)}</small>` : ""
+          p.date ? ` <small>${p.dateFormatted}</small>` : ""
         }</li>`
     )
     .join("\n");
@@ -138,6 +138,10 @@ function buildStaticPages() {
 
 function buildBlogPosts() {
   const postsDir = "./content/posts";
+  const postTemplatePath = "./templates/post.html";
+  const postTemplate = fs.existsSync(postTemplatePath)
+    ? fs.readFileSync(postTemplatePath, "utf-8")
+    : "{{content}}";
 
   // create dist folder if not already created
   fs.mkdirSync(outputDir, { recursive: true });
@@ -155,11 +159,12 @@ function buildBlogPosts() {
     // normalize slug (remove any leading/trailing slashes)
     const normalizedSlug = data.slug;
 
+    const postWrapped = applyTemplate(postTemplate, { ...data, content: html });
     const finalHtml = applyTemplate(layout, {
       ...data,
       basePath,
       assetPrefix,
-      content: html,
+      content: postWrapped,
     });
 
     // add post to dist/blog folder
