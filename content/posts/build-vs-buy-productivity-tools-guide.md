@@ -6,8 +6,6 @@ metaTitle: Custom Goal Tracker vs Notion - Build vs Buy for Life Systems
 metaDescription: A case study in when to build custom tools for personal optimization, and why I coded my own goal tracking system instead of using existing solutions.
 ---
 
-# Why I Built My Own Goal Tracker Instead of Using Notion
-
 After two years of trying every productivity app, template, and system, I finally built my own goal tracking tool. Here's the engineering decision that changed how I approach personal optimization.
 
 ## The Problem with Off-the-Shelf Solutions
@@ -39,12 +37,14 @@ The magic is in the automation layer. It pulls data from my fitness tracker, cal
 Here's my framework for when to build custom tools for life optimization:
 
 **Build When:**
+
 - The tool is core to your competitive advantage
 - You use it daily and existing friction compounds
 - You have specific requirements that don't match available solutions
 - The maintenance cost is low (simple, focused tools)
 
 **Buy When:**
+
 - Good enough solutions exist and customization isn't critical
 - The problem is outside your core competency
 - Building would take significant time away from higher-value activities

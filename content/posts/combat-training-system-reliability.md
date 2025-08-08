@@ -46,6 +46,7 @@ Having these layers means I never go from "perfect routine" to "complete chaos."
 The most valuable combat training isn't for the techniques you'll definitely use—it's for building general capability and confidence under pressure. Similarly, the best personal optimization isn't just for normal days.
 
 I build systems that work when:
+
 - I'm traveling across time zones
 - Major life changes disrupt my routine
 - Health issues limit my normal activities
@@ -58,6 +59,7 @@ I build systems that work when:
 Combat training develops your ability to quickly adapt to new opponents, environments, and constraints. This meta-skill—learning how to learn and adjust quickly—is the real value.
 
 In personal optimization, this means:
+
 - Treating every system as an experiment, not a permanent solution
 - Building feedback loops that detect when something stops working
 - Maintaining a bias toward action over analysis paralysis

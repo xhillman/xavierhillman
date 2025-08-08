@@ -5,11 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{{pageTitle}}</title>
   <meta name="description" content="{{metaDescription}}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{assetPrefix}}/css/styles.css" />
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
   <header>
-    <nav>
+    <nav aria-label="Primary">
         <div class="logo"><a href="{{basePath}}/">xavier hillman</a></div>
         <ul>
             <li><a href="{{basePath}}/">home</a></li>
@@ -20,7 +24,7 @@
     </nav>
   </header>
 
-  <main>
+  <main id="main-content" tabindex="-1">
     {{content}}
   </main>
 

@@ -4,37 +4,119 @@ html { -webkit-text-size-adjust: 100%; }
 :root {
   --max-content-width: 72rem; /* ~1152px */
   --content-padding-inline: clamp(1rem, 3vw, 2rem);
-  --font-system: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-system: "DM Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  --measure: 65ch; /* ideal reading line-length */
+  --headline-measure-h1: 28ch;
+  --headline-measure-h2: 32ch;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --text: #0f172a; /* slate-900 */
-  --text-muted: #475569; /* slate-600 */
-  --bg: #ffffff;
-  --bg-elev: #f8fafc; /* slate-50 */
-  --border: #e2e8f0; /* slate-200 */
-  --accent: #0ea5e9; /* sky-500 */
+
+  /* Brand palette */
+  --brand-navy: #1a2332;    /* Deep Navy */
+  --brand-steel: #4a90a4;   /* Steel Blue */
+  --brand-warm: #fafaf9;    /* Warm White */
+  --brand-graphite: #3c3c3b;/* Graphite */
+  --brand-copper: #b87333;  /* Copper */
+  --brand-forest: #2d4a2b;  /* Forest Green */
+  --brand-amber: #d4a574;   /* Amber */
+
+  /* Semantic tokens (light) */
+  --text: var(--brand-navy);
+  --text-muted: #5b6472; /* muted navy */
+  --bg: var(--brand-warm);
+  --bg-elev: #f5f4f2; /* elevated warm */
+  --border: #e4e2dd; /* warm border */
+  --accent: var(--brand-copper);
   --accent-contrast: #ffffff;
-  --link: #0369a1; /* sky-700 */
+  --link: var(--brand-steel);
+  --accent-forest: var(--brand-forest);
+  --accent-amber: var(--brand-amber);
+
+  --shadow-sm: 0 1px 2px rgba(26, 35, 50, 0.08);
+  --shadow-md: 0 8px 24px rgba(26, 35, 50, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e9ecef; /* warm light */
+    --text-muted: #b3c2c9; /* muted steel */
+    --bg: var(--brand-navy);
+    --bg-elev: #202a3b; /* elevated navy */
+    --border: #2a3547; /* navy border */
+    --accent: var(--brand-copper);
+    --accent-contrast: #120a00;
+    --link: #9ac4cf; /* lighter steel for dark */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.55);
+  }
 }
 
 /* Layout primitives */
 html, body { height: 100%; }
+html { font-size: 18px; }
 body {
   margin: 0;
   font-family: var(--font-system);
   color: var(--text);
   background: var(--bg);
   line-height: 1.6;
+  font-size: 1rem; /* follows html 18px */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   display: grid;
   grid-template-rows: auto 1fr auto; /* header, content, footer */
   min-height: 100vh;
+  overflow-x: clip; /* avoid accidental horizontal scroll from flex overflow */
+}
+
+::selection { background: color-mix(in oklab, var(--accent) 35%, transparent); }
+a { color: var(--link); text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: from-font; }
+a:hover { text-decoration-thickness: 2px; }
+
+/* Type scale */
+h1 { font-size: clamp(1.75rem, 4.5vw, 2.5rem); }
+h2 { font-size: clamp(1.375rem, 3.5vw, 1.875rem); }
+h3 { font-size: clamp(1.125rem, 2.5vw, 1.375rem); }
+p, li { font-size: 1rem; letter-spacing: 0.1px; }
+small { font-size: 0.875rem; }
+
+/* Heading weights and letter-spacing (DM Sans) */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+h1 { font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-weight: 700; letter-spacing: -0.005em; }
+h3 { font-weight: 700; letter-spacing: -0.0025em; }
+h4 { font-weight: 600; letter-spacing: 0; }
+h5 { font-weight: 600; letter-spacing: 0.005em; }
+h6 { font-weight: 600; letter-spacing: 0.02em; }
+
+/* Skip link (visible for keyboard users only) */
+.skip-link {
+  position: fixed;
+  left: 0.5rem;
+  top: 0.5rem;
+  transform: translateY(-150%);
+  opacity: 0;
+  background: var(--bg);
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  border: 2px solid var(--accent);
+  text-decoration: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  z-index: 1100;
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 /* Header / Nav */
 header {
   border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  background: color-mix(in oklab, var(--bg) 88%, white 12%);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -47,6 +129,7 @@ nav {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  flex-wrap: wrap; /* allow wrapping at mid widths too */
 }
 nav .logo a {
   text-decoration: none;
@@ -54,6 +137,7 @@ nav .logo a {
   font-weight: 700;
   letter-spacing: 0.2px;
 }
+nav .logo { min-width: 0; }
 nav ul {
   list-style: none;
   margin: 0;
@@ -61,14 +145,15 @@ nav ul {
   display: flex;
   align-items: center;
   gap: clamp(0.5rem, 3vw, 1.25rem);
+  flex-wrap: wrap;
+  min-width: 0; /* prevent flex children from forcing overflow */
 }
 nav a {
   color: var(--link);
   text-decoration: none;
+  position: relative;
 }
-nav a:hover, nav a:focus-visible {
-  text-decoration: underline;
-}
+nav a:hover, nav a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
 
 /* Mobile nav wrapping gracefully without hamburger for now */
 @media (max-width: 40rem) {
@@ -82,6 +167,13 @@ main {
   max-width: var(--max-content-width);
   margin-inline: auto;
   padding: clamp(1rem, 3vw, 2rem) var(--content-padding-inline);
+  min-width: 0; /* avoid content causing overflow in grid */
+}
+/* Constrain paragraph measure for readability */
+main p {
+  max-width: var(--measure);
+  text-wrap: pretty;
+  hyphens: auto;
 }
 
 /* Typography */
@@ -89,12 +181,34 @@ h1, h2, h3 { line-height: 1.2; margin: 0.5em 0 0.25em; }
 p { margin: 0.75em 0; }
 small { color: var(--text-muted); }
 code, pre { font-family: var(--font-mono); }
+/* Inline code */
+:not(pre) > code {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0.125rem 0.375rem;
+}
 pre {
   background: var(--bg-elev);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   padding: 1rem;
   overflow-x: auto;
+  box-shadow: var(--shadow-sm);
+}
+
+blockquote {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  background: var(--bg-elev);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
 }
 
 /* Lists in blog/project indexes */
@@ -107,8 +221,16 @@ main > ul li {
 main > ul li a { font-weight: 600; }
 
 /* Article layout */
-article { max-width: 70ch; }
-article h1 { font-size: clamp(1.75rem, 3vw, 2.25rem); }
+article { max-width: var(--measure); }
+article h1 { font-size: clamp(1.875rem, 4vw, 2.5rem); }
+article img {
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Headline line-length constraints */
+h1 { max-inline-size: var(--headline-measure-h1); }
+h2 { max-inline-size: var(--headline-measure-h2); }
 
 /* Footer */
 footer {
@@ -133,6 +255,7 @@ footer p {
 img, svg, video, canvas, audio, iframe, embed, object {
   max-width: 100%;
   height: auto;
+  display: block; /* prevent inline-gap and unexpected overflow */
 }
 
 table {
@@ -140,9 +263,31 @@ table {
   border-collapse: collapse;
   display: block;           /* enable horizontal scroll when needed */
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 main { overflow-wrap: anywhere; }
 
 /* Ensure in-page anchor links account for sticky header */
 h1, h2, h3, h4, h5, h6 { scroll-margin-top: 4.5rem; }
+
+/* Print styles: readable, minimal chrome */
+@media print {
+  :root {
+    --text: #000;
+    --bg: #fff;
+    --bg-elev: #fff;
+    --border: #aaa;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    line-height: 1.5;
+  }
+  header, nav, footer, .skip-link { display: none !important; }
+  main { padding: 0; max-width: 100%; }
+  article { max-width: 100%; }
+  a { color: #000; text-decoration: underline; }
+  img { box-shadow: none !important; }
+  pre { box-shadow: none !important; border-color: #bbb; }
+}
