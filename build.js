@@ -1,8 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { applyTemplate } from "./js/template.js";
-import matter from "gray-matter";
-import { marked } from "marked";
+import { loadCollection, parseMarkdownFile } from "./js/markdown.js";
 
 const templatePath = "./templates/layout.html";
 const layout = fs.readFileSync(templatePath, "utf-8");
@@ -26,8 +25,8 @@ function buildStaticPages() {
   const homeMeta = metaByOutput["index.html"] || {};
   const homeSrc = fs.readFileSync("./index.html", "utf-8");
   const homeHtml = applyTemplate(layout, {
-    title: homeMeta.title || "Home",
-    description: homeMeta.description || "",
+    pageTitle: homeMeta.title || "Home",
+    metaDescription: homeMeta.description || "",
     content: homeSrc,
   });
   fs.writeFileSync(path.join(outputDir, "index.html"), homeHtml);
@@ -37,8 +36,8 @@ function buildStaticPages() {
   const aboutMeta = metaByOutput["about.html"] || {};
   const aboutSrc = fs.readFileSync("./about.html", "utf-8");
   const aboutHtml = applyTemplate(layout, {
-    title: aboutMeta.title || "About",
-    description: aboutMeta.description || "",
+    pageTitle: aboutMeta.title || "About",
+    metaDescription: aboutMeta.description || "",
     content: aboutSrc,
   });
   const aboutOutDir = path.join(outputDir, "about");
@@ -49,27 +48,7 @@ function buildStaticPages() {
   // 3) Blog index page -> /blog
   const blogMeta = metaByOutput["blog.html"] || {};
   const blogTemplate = fs.readFileSync("./templates/blog.html", "utf-8");
-  const postsDir = "./content/posts";
-  const postFiles = fs.existsSync(postsDir)
-    ? fs.readdirSync(postsDir).filter((f) => f.endsWith(".md"))
-    : [];
-  const posts = postFiles
-    .map((file) => {
-      const filePath = path.join(postsDir, file);
-      const { data } = matter(fs.readFileSync(filePath, "utf-8"));
-      return {
-        title: data.title || data.slug || file.replace(/\.md$/, ""),
-        slug: data.slug,
-        date: data.date ? new Date(data.date) : null,
-      };
-    })
-    .filter((p) => p.slug);
-  posts.sort((a, b) => {
-    if (a.date && b.date) return b.date - a.date;
-    if (a.date && !b.date) return -1;
-    if (!a.date && b.date) return 1;
-    return a.title.localeCompare(b.title);
-  });
+  const posts = loadCollection("./content/posts");
   const postsListHtml = posts
     .map(
       (p) =>
@@ -80,8 +59,8 @@ function buildStaticPages() {
     .join("\n");
   const blogContent = applyTemplate(blogTemplate, { posts: postsListHtml });
   const blogHtml = applyTemplate(layout, {
-    title: blogMeta.title || "Blog",
-    description: blogMeta.description || "",
+    pageTitle: blogMeta.title || "Blog",
+    metaDescription: blogMeta.description || "",
     content: blogContent,
   });
   const blogOutDir = path.join(outputDir, "blog");
@@ -92,27 +71,14 @@ function buildStaticPages() {
   // 4) Projects index page -> /projects
   const projectsMeta = metaByOutput["projects.html"] || {};
   const projectsTemplate = fs.readFileSync("./templates/projects.html", "utf-8");
-  const projectsDir = "./content/projects";
-  const projectFiles = fs.existsSync(projectsDir)
-    ? fs.readdirSync(projectsDir).filter((f) => f.endsWith(".md"))
-    : [];
-  const projects = projectFiles
-    .map((file) => {
-      const filePath = path.join(projectsDir, file);
-      const { data } = matter(fs.readFileSync(filePath, "utf-8"));
-      return {
-        title: data.title || data.slug || file.replace(/\.md$/, ""),
-        slug: data.slug,
-      };
-    })
-    .filter((p) => p.slug);
+  const projects = loadCollection("./content/projects");
   const projectsListHtml = projects
     .map((p) => `<li><a href="/projects/${p.slug}/">${p.title}</a></li>`)
     .join("\n");
   const projectsContent = applyTemplate(projectsTemplate, { projects: projectsListHtml });
   const projectsHtml = applyTemplate(layout, {
-    title: projectsMeta.title || "Projects",
-    description: projectsMeta.description || "",
+    pageTitle: projectsMeta.title || "Projects",
+    metaDescription: projectsMeta.description || "",
     content: projectsContent,
   });
   const projectsOutDir = path.join(outputDir, "projects");
@@ -134,21 +100,22 @@ function buildBlogPosts() {
   postFiles.forEach((post) => {
     // read and parse markdown
     const filePath = path.join(postsDir, post);
-    const fileContent = fs.readFileSync(filePath, "utf-8");
-    const { data, content } = matter(fileContent);
-    const htmlContent = marked(content);
+    const { data, html } = parseMarkdownFile(filePath);
 
     // apply template
+    // normalize slug (remove any leading/trailing slashes)
+    const normalizedSlug = data.slug;
+
     const finalHtml = applyTemplate(layout, {
       ...data,
-      content: htmlContent,
+      content: html,
     });
 
     // add post to dist folder
-    const postDir = path.join(outputDir, data.slug);
+    const postDir = path.join(outputDir, normalizedSlug);
     fs.mkdirSync(postDir, { recursive: true });
     fs.writeFileSync(path.join(postDir, "index.html"), finalHtml);
-    console.log(`→ ${data.slug}`);
+    console.log(`→ /${normalizedSlug}`);
   });
 }
 
@@ -168,29 +135,28 @@ function buildProjects() {
   projectFiles.forEach((file) => {
     // read and parse markdown
     const filePath = path.join(projectsDir, file);
-    const fileContent = fs.readFileSync(filePath, "utf-8");
-
-    const { data, content } = matter(fileContent);
+    const { data, html } = parseMarkdownFile(filePath);
 
     if (!data.title || !data.slug) {
       console.warn(`Skipping ${file}: Missing title or slug.`);
       return;
     }
 
-    const htmlContent = marked(content);
+    // normalize slug (remove any leading/trailing slashes)
+    const normalizedSlug = data.slug;
 
     // apply template
     const finalHtml = applyTemplate(layout, {
       ...data,
-      content: htmlContent,
+      content: html,
     });
 
     // add project to dist folder
-    const projectOutDir = path.join(outputDir, data.slug);
+    const projectOutDir = path.join(outputDir, normalizedSlug);
     fs.mkdirSync(projectOutDir, { recursive: true });
     fs.writeFileSync(path.join(projectOutDir, "index.html"), finalHtml);
 
-    console.log(`→ /projects/${data.slug}`);
+    console.log(`→ /projects/${normalizedSlug}`);
   });
 }
 
