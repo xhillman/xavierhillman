@@ -10,16 +10,23 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{assetPrefix}}/css/styles.css" />
 </head>
-<body>
+  <body class="{{bodyClass}}">
   <a class="skip-link" href="#main-content">Skip to content</a>
   <header>
     <nav aria-label="Primary">
-        <div class="logo"><a href="{{basePath}}/">xavier hillman</a></div>
-        <ul>
-            <li><a href="{{basePath}}/">home</a></li>
-            <li><a href="{{basePath}}/blog/">blog</a></li>
-            <li><a href="{{basePath}}/projects/">projects</a></li>
-            <li><a href="{{basePath}}/about/">about</a></li>
+        <div class="brand-row">
+          <div class="logo"><a href="{{basePath}}/">xavier hillman</a></div>
+          <button class="hamburger" id="menu-toggle" aria-controls="primary-nav" aria-expanded="false" aria-label="Open menu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+          </button>
+        </div>
+        <ul id="primary-nav">
+            <li><a data-nav="home" href="{{basePath}}/">home</a></li>
+            <li><a data-nav="blog" href="{{basePath}}/blog/">blog</a></li>
+            <li><a data-nav="projects" href="{{basePath}}/projects/">projects</a></li>
+            <li><a data-nav="about" href="{{basePath}}/about/">about</a></li>
         </ul>
     </nav>
   </header>
@@ -31,5 +38,45 @@
   <footer>
     <p>© 2025 Xavier Hillman</p>
   </footer>
+  <script>
+    // Enable JS-only behaviors
+    document.documentElement.classList.add('has-js');
+    (function() {
+      const nav = document.querySelector('nav[aria-label="Primary"]');
+      const toggle = document.getElementById('menu-toggle');
+      const list = document.getElementById('primary-nav');
+      if (!nav || !toggle || !list) return;
+
+      function setOpen(isOpen) {
+        nav.setAttribute('data-open', String(isOpen));
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        toggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+      }
+
+      toggle.addEventListener('click', () => {
+        const isOpen = nav.getAttribute('data-open') === 'true';
+        setOpen(!isOpen);
+      });
+
+      // Close on escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') setOpen(false);
+      });
+
+      // Close when clicking a nav link (use capture to ensure it fires even if default prevented)
+      list.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target && target.closest('a')) setOpen(false);
+      }, true);
+
+      // Close on outside click
+      document.addEventListener('click', (e) => {
+        const t = e.target;
+        if (!nav.contains(t)) setOpen(false);
+      });
+
+
+    })();
+  </script>
 </body>
 </html>

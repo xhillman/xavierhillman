@@ -70,6 +70,7 @@ function buildStaticPages() {
     metaDescription: homeMeta.description || "",
     basePath,
     assetPrefix,
+    bodyClass: "page-home",
     content: homeSrc,
   });
   fs.writeFileSync(path.join(outputDir, "index.html"), homeHtml);
@@ -83,6 +84,7 @@ function buildStaticPages() {
     metaDescription: aboutMeta.description || "",
     basePath,
     assetPrefix,
+    bodyClass: "page-about",
     content: aboutSrc,
   });
   const aboutOutDir = path.join(outputDir, "about");
@@ -108,6 +110,7 @@ function buildStaticPages() {
     metaDescription: blogMeta.description || "",
     basePath,
     assetPrefix,
+    bodyClass: "page-blog",
     content: blogContent,
   });
   const blogOutDir = path.join(outputDir, "blog");
@@ -128,6 +131,7 @@ function buildStaticPages() {
     metaDescription: projectsMeta.description || "",
     basePath,
     assetPrefix,
+    bodyClass: "page-projects",
     content: projectsContent,
   });
   const projectsOutDir = path.join(outputDir, "projects");
