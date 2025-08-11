@@ -4,6 +4,9 @@ date: 2025-08-05
 slug: /how-to-build-personal-operating-system
 metaTitle: Building a Personal Operating System - Weekly Version Update
 metaDescription: How I'm applying product development principles to design my life like software, with weekly version updates and systematic optimization experiments.
+tags: []
+draft: false
+type: post
 ---
 
 This week I shipped a major update to my personal operating system—the collection of tools, habits, and frameworks I use to run my life like a high-performing product. Here's what got deployed and what I learned.

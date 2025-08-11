@@ -4,6 +4,9 @@ date: 2025-08-07
 slug: /build-vs-buy-productivity-tools-guide
 metaTitle: Custom Goal Tracker vs Notion - Build vs Buy for Life Systems
 metaDescription: A case study in when to build custom tools for personal optimization, and why I coded my own goal tracking system instead of using existing solutions.
+tags: []
+draft: false
+type: post
 ---
 
 After two years of trying every productivity app, template, and system, I finally built my own goal tracking tool. Here's the engineering decision that changed how I approach personal optimization.

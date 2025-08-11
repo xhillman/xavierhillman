@@ -64,7 +64,7 @@ function buildStaticPages() {
 
   // 1) Home page -> /
   const homeMeta = metaByOutput["index.html"] || {};
-  const homeSrc = fs.readFileSync("./index.html", "utf-8");
+  const homeSrc = fs.readFileSync("./content/pages/index.html", "utf-8");
   const homeHtml = applyTemplate(layout, {
     pageTitle: homeMeta.title || "Home",
     metaDescription: homeMeta.description || "",
@@ -78,7 +78,7 @@ function buildStaticPages() {
 
   // 2) About page -> /about
   const aboutMeta = metaByOutput["about.html"] || {};
-  const aboutSrc = fs.readFileSync("./about.html", "utf-8");
+  const aboutSrc = fs.readFileSync("./content/pages/about.html", "utf-8");
   const aboutHtml = applyTemplate(layout, {
     pageTitle: aboutMeta.title || "About",
     metaDescription: aboutMeta.description || "",
@@ -97,12 +97,13 @@ function buildStaticPages() {
   const blogTemplate = fs.readFileSync("./templates/blog.html", "utf-8");
   const posts = loadCollection("./content/posts");
   const postsListHtml = posts
-    .map(
-      (p) =>
-        `<li><a href="${basePath}/blog/${p.slug}/">${p.title}</a>${
-          p.date ? ` <small>${p.dateFormatted}</small>` : ""
-        }</li>`
-    )
+    .map((p) => {
+      let badge = "";
+      if (isDev && p.draft === true) {
+        badge = ' <span style="background:#ffeeba;color:#856404;font-size:0.85em;padding:0.15em 0.5em;border-radius:0.4em;margin-left:0.5em;vertical-align:middle;">DRAFT</span>';
+      }
+      return `<li><a href="${basePath}/blog/${p.slug}/">${p.title}</a>${badge}${p.date ? ` <small>${p.dateFormatted}</small>` : ""}</li>`;
+    })
     .join("\n");
   const blogContent = applyTemplate(blogTemplate, { posts: postsListHtml });
   const blogHtml = applyTemplate(layout, {
@@ -159,11 +160,22 @@ function buildBlogPosts() {
     const filePath = path.join(postsDir, post);
     const { data, html } = parseMarkdownFile(filePath);
 
+    // Only build non-draft posts in PROD
+    if (!isDev && data.draft === true) {
+      return;
+    }
+
     // apply template
     // normalize slug (remove any leading/trailing slashes)
     const normalizedSlug = data.slug;
 
-    const postWrapped = applyTemplate(postTemplate, { ...data, content: html });
+    let postContent = html;
+    // In DEV, add a draft banner for draft posts
+    if (isDev && data.draft === true) {
+      postContent = `<div style="background: #ffeeba; color: #856404; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; font-weight: bold; text-align: center;">DRAFT: This post is not live and may change before publication.</div>\n` + postContent;
+    }
+
+    const postWrapped = applyTemplate(postTemplate, { ...data, content: postContent });
     const finalHtml = applyTemplate(layout, {
       ...data,
       basePath,

@@ -4,6 +4,9 @@ date: 2025-08-08
 slug: /combat-training-system-reliability
 metaTitle: Combat Training Lessons for System Reliability - Cross-Domain Learning
 metaDescription: What martial arts and tactical training teach about building reliable personal systems that work under stress and uncertainty.
+tags: []
+draft: true
+type: post
 ---
 
 Six months of Brazilian Jiu-Jitsu and tactical firearms training taught me more about system design than most software engineering books. Here's what combat sports reveal about building reliable personal systems.
