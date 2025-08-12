@@ -5,15 +5,19 @@
   "main": "build.js",
   "type": "module",
   "scripts": {
-    "build": "node build.js",
+    "build:dev": "cross-env ENV=DEV node build.js",
+    "build": "cross-env ENV=PROD node build.js",
     "clean": "node -e \"require('fs').rmSync('./dist',{recursive:true,force:true})\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "gray-matter": "^4.0.3",
-    "marked": "^16.1.2",
-    "dotenv": "^16.4.5"
+    "marked": "^16.1.2"
+  },
+  "devDependencies": {
+    "cross-env": "^10.0.0"
   }
 }
