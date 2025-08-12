@@ -102,7 +102,17 @@ function buildStaticPages() {
       if (isDev && p.draft === true) {
         badge = ' <span style="background:#ffeeba;color:#856404;font-size:0.85em;padding:0.15em 0.5em;border-radius:0.4em;margin-left:0.5em;vertical-align:middle;">DRAFT</span>';
       }
-      return `<li><a href="${basePath}/blog/${p.slug}/">${p.title}</a>${badge}${p.date ? ` <small>${p.dateFormatted}</small>` : ""}</li>`;
+      // Date above title
+      const dateHtml = p.dateFormatted ? `<div style=\"font-size:0.95em;color:#888;margin-bottom:0.2em;\">${p.dateFormatted}</div>` : "";
+      // Tags as chips under title
+      let tagsHtml = "";
+      if (Array.isArray(p.tags) && p.tags.length > 0) {
+        tagsHtml = `<div style=\"margin:0.4em 0 0.2em 0;display:flex;flex-wrap:wrap;gap:0.4em;\">` +
+          p.tags.map(tag => `<span style=\"background:#e3e7f0;color:#2a3547;font-size:0.78em;padding:0.13em 0.65em;border-radius:0.7em;\">${tag}</span>`).join("") +
+          `</div>`;
+      }
+      // Even more subtle hover effect for title
+      return `<li style=\"margin-bottom:2.2em;\">${dateHtml}<a href=\"${basePath}/blog/${p.slug}/\" style=\"font-size:1.18em;font-weight:600;text-decoration:none;color:inherit;transition:color 0.18s;\" onmouseover=\"this.style.color='#b3b7c2ff';\" onmouseout=\"this.style.color='inherit';\">${p.title}</a>${badge}${tagsHtml}</li>`;
     })
     .join("\n");
   const blogContent = applyTemplate(blogTemplate, { posts: postsListHtml });

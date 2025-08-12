@@ -4,7 +4,7 @@ date: 2025-08-05
 slug: /how-to-build-personal-operating-system
 metaTitle: Building a Personal Operating System - Weekly Version Update
 metaDescription: How I'm applying product development principles to design my life like software, with weekly version updates and systematic optimization experiments.
-tags: []
+tags: [LifeOS]
 draft: false
 type: post
 ---

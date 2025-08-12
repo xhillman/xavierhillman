@@ -4,7 +4,7 @@ date: 2025-08-08
 slug: /combat-training-system-reliability
 metaTitle: Combat Training Lessons for System Reliability - Cross-Domain Learning
 metaDescription: What martial arts and tactical training teach about building reliable personal systems that work under stress and uncertainty.
-tags: []
+tags: [Tactical, System Reliability]
 draft: true
 type: post
 ---
