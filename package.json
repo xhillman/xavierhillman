@@ -5,7 +5,7 @@
   "main": "build.js",
   "type": "module",
   "scripts": {
-    "build:dev": "cross-env ENV=DEV node build.js",
+    "build:dev": "npm run clean && cross-env ENV=DEV node build.js",
     "build": "npm run clean && cross-env ENV=PROD node build.js",
     "clean": "node -e \"require('fs').rmSync('./dist',{recursive:true,force:true})\""
   },
