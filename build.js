@@ -64,7 +64,52 @@ function buildStaticPages() {
 
   // 1) Home page -> /
   const homeMeta = metaByOutput["index.html"] || {};
-  const homeSrc = fs.readFileSync("./content/pages/index.html", "utf-8");
+  const homeSrcRaw = fs.readFileSync("./content/pages/index.html", "utf-8");
+
+  // Inject latest 3 posts into the home page's latestPosts placeholder.
+  // We replace the {{#each latestPosts}}...{{/each}} block in the page HTML
+  // with a rendered snippet for the most recent three posts.
+  const allPostsForHome = loadCollection("./content/posts");
+  const latestPosts = allPostsForHome.slice(0, 3);
+  const latestPostsHtml = latestPosts
+    .map((p) => {
+      const isoDate = p.date ? p.date.toISOString().split('T')[0] : "";
+      const summary = p.metaDescription || p.description || "";
+      const title = p.pageTitle || p.title || "";
+      return `      <article>
+        <a href="${basePath}/blog/${p.slug}/">
+          <h3>${title}</h3>
+          <p>${summary}</p>
+          <time datetime="${isoDate}">${p.dateFormatted || ""}</time>
+        </a>
+      </article>`;
+    })
+    .join("\n");
+
+  // Compute latest project and post for home placeholders
+  const projectsForHome = loadCollection("./content/projects");
+  const latestProject = projectsForHome[0] || {};
+  const latestProjectLink = latestProject.slug ? `${basePath}/projects/${latestProject.slug}/` : "#";
+  const latestProjectTitle = latestProject.title || "";
+  const latestProjectSummary = latestProject.metaDescription || latestProject.description || "";
+
+  const latestPost = latestPosts[0] || {};
+  const latestPostLink = latestPost.slug ? `${basePath}/blog/${latestPost.slug}/` : "#";
+  const latestPostTitle = latestPost.title || "";
+  const latestPostSummary = latestPost.metaDescription || latestPost.description || "";
+
+  // Replace the Handlebars-like each block with the generated HTML and resolve inline placeholders.
+  const homeSrc = homeSrcRaw
+    .replace(/{{#each latestPosts}}[\s\S]*?{{\/each}}/, latestPostsHtml)
+    .replace(/{{\s*basePath\s*}}/g, basePath)
+    .replace(/{{\s*CONVERTKIT_FORM_URL\s*}}/g, process.env.CONVERTKIT_FORM_URL || "#")
+    .replace(/{{\s*latestProjectUrl\s*}}/g, latestProjectLink)
+    .replace(/{{\s*latestProjectTitle\s*}}/g, latestProjectTitle)
+    .replace(/{{\s*latestProjectSummary\s*}}/g, latestProjectSummary)
+    .replace(/{{\s*latestPostUrl\s*}}/g, latestPostLink)
+    .replace(/{{\s*latestPostTitle\s*}}/g, latestPostTitle)
+    .replace(/{{\s*latestPostSummary\s*}}/g, latestPostSummary);
+
   const homeHtml = applyTemplate(layout, {
     pageTitle: homeMeta.title || "Home",
     metaDescription: homeMeta.description || "",

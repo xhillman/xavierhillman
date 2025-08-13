@@ -1,2 +1,97 @@
-<h1>Hello World</h1>
-<h2>This is the home page</h2>
+<section class="hero" aria-labelledby="hero-title">
+  <p class="eyebrow">Systems for builders</p>
+  <h1 id="hero-title">Ship more in less time—with less chaos.</h1>
+  <p class="subheading">I design Personal Operating Systems and share the playbooks so solo builders execute reliably, week after week.</p>
+
+  <ul class="benefits" role="list">
+    <li>Weekly planning templates that actually get used</li>
+    <li>Automation that removes busywork</li>
+    <li>Metrics and feedback loops that stick</li>
+  </ul>
+
+  <form action="{{CONVERTKIT_FORM_URL}}" method="post" class="ck-form-inline" aria-label="Subscribe for the Starter Kit" onsubmit="plausible('Subscribe_Hero_Form')">
+    <label for="hero-email" class="visually-hidden">Email address</label>
+    <input type="email" id="hero-email" name="email_address" placeholder="Enter your email" autocomplete="email" inputmode="email" required aria-describedby="hero-privacy" />
+    <button type="submit" class="btn btn-primary">Get the Starter Kit Free</button>
+  </form>
+
+  <div class="cta-row">
+    <a href="#how" class="link" onclick="plausible('CTA_SeeHow_Hero')">See how it works</a>
+  </div>
+
+  <p class="microcopy" id="hero-privacy">No spam. Unsubscribe anytime.</p>
+
+  <div class="social-proof" aria-label="Social proof">
+    <span>Built by Xavier. Read by operators and indie engineers.</span>
+  </div>
+</section>
+
+<section class="pillars">
+  <h2>Build with three pillars</h2>
+  <div class="grid-3">
+    <article>
+      <h3>Systems Architecture</h3>
+      <p>Design life like software—interfaces, feedback loops, reliable releases.</p>
+    </article>
+    <article>
+      <h3>Performance Engineering</h3>
+      <p>Physical and mental training that improves throughput and resilience.</p>
+    </article>
+    <article>
+      <h3>Automation & Leverage</h3>
+      <p>Scripts, tools, and workflows that compound solo output.</p>
+    </article>
+  </div>
+</section>
+
+<section id="how" class="how">
+  <h2>Build → Execute → Reflect (BXR)</h2>
+  <ol class="bxr">
+    <li><strong>Build</strong> a simple system for one bottleneck.</li>
+    <li><strong>Execute</strong> for two weeks—no tweaks.</li>
+    <li><strong>Reflect</strong> with metrics. Keep, kill, or iterate.</li>
+  </ol>
+</section>
+
+<section class="latest">
+  <h2>Latest from the lab</h2>
+  <div class="grid-3">
+    {{#each latestPosts}}
+      <!-- latest posts will be injected by build.js -->
+    {{/each}}
+  </div>
+
+  <div class="split">
+    <div class="pane">
+      <h3>Latest build</h3>
+      <a href="{{latestProjectUrl}}">{{latestProjectTitle}}</a>
+      <p>{{latestProjectSummary}}</p>
+    </div>
+    <div class="pane">
+      <h3>Latest post</h3>
+      <a href="{{latestPostUrl}}">{{latestPostTitle}}</a>
+      <p>{{latestPostSummary}}</p>
+    </div>
+  </div>
+</section>
+
+<section class="starter-kit">
+  <h2>Get the Starter Kit</h2>
+  <p>LifeOS Quickstart, weekly planning templates, 3 scripts, and a 10‑minute setup checklist.</p>
+  <form action="{{CONVERTKIT_FORM_URL}}" method="post" class="ck-form" onsubmit="plausible('Subscribe_Home_Form')">
+    <input type="email" name="email_address" placeholder="Enter your email" required>
+    <button type="submit" class="btn btn-primary">Send it to me</button>
+  </form>
+  <p class="small">No spam. Unsubscribe anytime.</p>
+</section>
+
+<section class="about-mini">
+  <h2>Who I am</h2>
+  <p>I’m Xavier—a builder who treats life like a product. I ship code, tools, and version updates of myself—and publish the playbooks.</p>
+  <a href="{{basePath}}/about/" class="link">More about me →</a>
+</section>
+
+<section class="cta-bottom">
+  <h2>Join for weekly version updates</h2>
+  <a class="btn btn-primary" href="{{basePath}}/subscribe" onclick="plausible('CTA_Subscribe_Bottom')">Subscribe</a>
+</section>
