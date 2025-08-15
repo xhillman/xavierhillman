@@ -476,7 +476,15 @@ h2 { max-inline-size: var(--headline-measure-h2); }
 .hero { padding-top: clamp(1rem, 3.5vw, 2.5rem); padding-bottom: clamp(2rem, 6vw, 5rem); display: grid; gap: clamp(0.6rem, 2.2vw, 1rem); }
 .hero > * { max-width: var(--measure); }
 .hero .eyebrow { font-size: 0.875rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 0.25rem; }
-.hero h1 { font-size: clamp(2.1rem, 6.8vw, 3.1rem); }
+.hero h1 {
+  font-size: clamp(2.1rem, 6.8vw, 3.1rem);
+  /* Allow a slightly longer headline measure in the hero so lines balance better */
+  max-inline-size: 36ch;
+  /* Prefer balanced wrapping where supported, and allow breaks when needed */
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
 .hero .subheading { font-size: clamp(1.05rem, 2.5vw, 1.25rem); color: var(--text); opacity: 0.95; margin-top: 0.25rem; }
 .hero .benefits { list-style: none; padding: 0; margin: 0.75rem 0 0.25rem; display: grid; gap: 0.4rem; }
 .hero .benefits li { display: flex; align-items: baseline; gap: 0.5rem; }
@@ -486,7 +494,7 @@ h2 { max-inline-size: var(--headline-measure-h2); }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.7rem 1rem; border-radius: 0.55rem; border: 1px solid var(--border); background: var(--bg-elev); color: var(--text); font-weight: 800; text-decoration: none; box-shadow: var(--shadow-sm); transition: transform 80ms ease, box-shadow 120ms ease, background-color 120ms ease, color 120ms ease, filter 120ms ease; letter-spacing: 0.01em; }
 .btn:hover { filter: saturate(110%); box-shadow: var(--shadow-md); text-decoration: none; }
 .btn:active { transform: translateY(1px); }
-.btn-primary { background: var(--accent); color: var(--accent-contrast); border-color: color-mix(in oklab, var(--accent) 70%, black 30%); box-shadow: 0 6px 18px rgba(0,0,0,0.08), var(--shadow-sm); }
+.btn-primary { background: var(--accent); color: #ffffff; border-color: color-mix(in oklab, var(--accent) 70%, black 30%); box-shadow: 0 6px 18px rgba(0,0,0,0.08), var(--shadow-sm); }
 .btn-primary:hover { background: color-mix(in oklab, var(--accent) 92%, black 8%); transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .btn-primary:focus-visible { outline: 2px solid var(--focus-ring-color); outline-offset: 3px; }
 
